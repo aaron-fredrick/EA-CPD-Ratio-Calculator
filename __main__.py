@@ -16,17 +16,34 @@ def load_fields(config_path="fields.conf"):
                 active_fields.append(line)
     return active_fields
 
-def snap_ratio(raw_ratio):
+def snap_ratio(total_time, actual_mins):
     """
-    Snaps a percentage (0-100) to the nearest of EA's allowed options:
-    0 (N/A), 25 (Some), 50 (Half), 75 (Most), 100 (All)
-    If the ratio > 0 but rounds to 0%, bumps it to 25% (Some) so CPD isn't lost.
+    Finds the EA Option (0, 0.25, 0.50, 0.75, 1.0) that results in a
+    calculated time closest to the user's actual minutes spent.
+    EA logic uses: floor((total * ratio) / 15) * 15
     """
-    thresholds = [0, 25, 50, 75, 100]
-    snapped = min(thresholds, key=lambda t: abs(t - raw_ratio))
-    if raw_ratio > 0 and snapped == 0:
-        return 25
-    return snapped
+    options = [0.0, 0.25, 0.50, 0.75, 1.0]
+    best_ratio = 0.0
+    min_diff = float('inf')
+    
+    for r in options:
+        # EA's internal calculation
+        calc = math.floor((total_time * r) / 15.0) * 15
+        diff = abs(calc - actual_mins)
+        
+        # If multiple ratios yield the same closest time, 
+        # we pick the one that prioritizes safety or accuracy.
+        # We'll take the first one encountered (lowest ratio) to be conservative.
+        if diff < min_diff:
+            min_diff = diff
+            best_ratio = int(r * 100)
+    
+    # If the user spent time (>0) but the best ratio is N/A (0), 
+    # we force at least "Some (25%)" to ensure it's logged.
+    if actual_mins > 0 and best_ratio == 0:
+        best_ratio = 25
+        
+    return best_ratio
 
 def get_label(snapped_pct):
     labels = {
@@ -40,11 +57,10 @@ def get_label(snapped_pct):
 
 def main():
     print("="*65)
-    print("EA CPD Reverse Ratio Calculator")
+    print("EA CPD Reverse Ratio Calculator (v2)")
     print("="*65)
-    print("Enter the ACTUAL time spent explicitly for each component.")
-    print("The tool will output the total time to enter in EA, and")
-    print("which Option/Ratio to select for each field.\n")
+    print("This version finds the BEST EA BUTTON for your minutes.")
+    print("="*65 + "\n")
 
     active_additional = load_fields()
     all_fields = COMMON_FIELDS + active_additional
@@ -80,19 +96,19 @@ def main():
     print("="*65)
     print(f"1. Enter TOTAL TIME: {total_time} minutes ({total_time//60}h {total_time%60}m)")
     print("-" * 65)
-    print(f"{'2. Select these Options for the fields:':<40}")
+    print(f"{'2. Select these Options for the fields:':<40} | {'EA Claim':<7}")
     print("-" * 65)
     
     for field, mins in time_spans.items():
-        raw_pct = (mins / total_time) * 100
-        snapped = snap_ratio(raw_pct)
+        snapped = snap_ratio(total_time, mins)
         # Using the safe step rounding user requested for the final check:
         adjusted_minutes = math.floor((total_time * (snapped / 100.0)) / 15) * 15
         
         label = get_label(snapped)
-        print(f"{field:<35} | {label:<12} -> (EA calculates {adjusted_minutes}m)")
+        print(f"{field:<40} | {label:<15} -> {adjusted_minutes}m")
 
     print("="*65)
+    print("\nNote: Snap logic improved to pick the Radio Button closest to your actual spent minutes.")
 
 if __name__ == "__main__":
     main()
