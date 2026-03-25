@@ -38,16 +38,15 @@ def snap_ratio(total_time, actual_mins):
     min_diff = float('inf')
     
     for r in ratios:
+        if actual_mins > 0 and r == 0:
+            continue
         calc = EA_Calculation(total_time, r)
         diff = abs(calc - actual_mins)
         
-        if diff < min_diff:
+        if diff < min_diff or (diff == min_diff and r > best_ratio):
             min_diff = diff
             best_ratio = r
-    
-    if actual_mins > 0 and best_ratio == 0:
-        best_ratio = 25
-        
+            
     return best_ratio
 
 def get_label(snapped_pct):
@@ -63,7 +62,7 @@ def get_label(snapped_pct):
 def main():
     print("="*65)
     print("EA CPD Ratio Calculator (CLI)")
-    print("v0.1.0-test1")
+    print("v0.2.0-beta")
     print("="*65)
     print("Determines the exact EA Portal options for your field times.")
     print("="*65 + "\n")
@@ -89,13 +88,27 @@ def main():
         print("\nNo time was entered. Exiting.")
         return
 
-    # Total actual time rounded UP to nearest 15 for CPD logging
+    # Find the optimal Total Time that minimizes the error across all fields
     raw_total = sum(time_spans.values())
-    total_time = int(math.ceil(raw_total / 15.0) * 15)
+    
+    best_total = 15
+    min_error = float('inf')
+    best_diff_from_sum = float('inf')
+    
+    for t in range(15, 6015, 15):
+        current_error = 0
+        for field, mins in time_spans.items():
+            r = snap_ratio(t, mins)
+            ea = EA_Calculation(t, r)
+            current_error += abs(ea - mins)
+            
+        diff_from_sum = abs(t - raw_total)
+        if current_error < min_error or (current_error == min_error and diff_from_sum < best_diff_from_sum):
+            min_error = current_error
+            best_diff_from_sum = diff_from_sum
+            best_total = t
 
-    if total_time == 0:
-        print("\nTotal rounded time is 0. Exiting.")
-        return
+    total_time = best_total
 
     print("\n" + "="*65)
     print("RESULTS TO ENTER IN EA PORTAL:")
