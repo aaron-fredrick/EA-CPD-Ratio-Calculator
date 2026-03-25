@@ -3,19 +3,10 @@ import os
 
 COMMON_FIELDS = ["Risk Management", "Business & Management"]
 
-RATIO_MAP = {
-    "1": ("N/A (0%)", 0.0),
-    "2": ("Some (25%)", 0.25),
-    "3": ("Half (50%)", 0.50),
-    "4": ("Most (75%)", 0.75),
-    "5": ("All (100%)", 1.0)
-}
-
 def load_fields(config_path="fields.conf"):
     """Load active fields from the conf file, ignoring lines that start with #."""
     active_fields = []
     if not os.path.exists(config_path):
-        print(f"Warning: {config_path} not found. Only common fields will be processed.")
         return active_fields
         
     with open(config_path, "r", encoding="utf-8") as f:
@@ -25,77 +16,83 @@ def load_fields(config_path="fields.conf"):
                 active_fields.append(line)
     return active_fields
 
-def get_ratio_choice(field_name):
-    print(f"\nSelect ratio for '{field_name}':")
-    for key, (label, _) in RATIO_MAP.items():
-        print(f"  {key} - {label}")
-    
-    while True:
-        choice = input("Enter choice (1-5): ").strip()
-        if choice in RATIO_MAP:
-            return RATIO_MAP[choice]
-        print("Invalid choice. Please enter a number between 1 and 5.")
+def snap_ratio(raw_ratio):
+    """
+    Snaps a percentage (0-100) to the nearest of EA's allowed options:
+    0 (N/A), 25 (Some), 50 (Half), 75 (Most), 100 (All)
+    If the ratio > 0 but rounds to 0%, bumps it to 25% (Some) so CPD isn't lost.
+    """
+    thresholds = [0, 25, 50, 75, 100]
+    snapped = min(thresholds, key=lambda t: abs(t - raw_ratio))
+    if raw_ratio > 0 and snapped == 0:
+        return 25
+    return snapped
 
-def calculate_time(total_minutes, ratio_pct):
-    """
-    Safely calculates time in 15 minute increments.
-    e.g., if total=30m, 50%=15m, 75%=22.5m (floored to 15m steps = 15m)
-    Formula: floor((total * ratio) / 15) * 15
-    """
-    return math.floor((total_minutes * ratio_pct) / 15) * 15
+def get_label(snapped_pct):
+    labels = {
+        0: "N/A (0%)",
+        25: "Some (25%)",
+        50: "Half (50%)",
+        75: "Most (75%)",
+        100: "All (100%)"
+    }
+    return labels.get(snapped_pct, "Unknown")
 
 def main():
-    print("="*50)
-    print("EA CPD Hours Ratio Calculator")
-    print("="*50)
-    
-    # Get total time
-    print("\nEnter your Total CPD Time:")
-    try:
-        hours_str = input("Hours: ").strip()
-        mins_str = input("Minutes: ").strip()
-        
-        hours = int(hours_str) if hours_str else 0
-        minutes = int(mins_str) if mins_str else 0
-    except ValueError:
-        print("Invalid input for time. Must be numbers. Exiting.")
-        return
-        
-    total_minutes = (hours * 60) + minutes
-    if total_minutes == 0:
-        print("Total time is 0. Exiting.")
-        return
-        
-    print(f"\nTotal Time set: {total_minutes} minutes.")
+    print("="*65)
+    print("EA CPD Reverse Ratio Calculator")
+    print("="*65)
+    print("Enter the ACTUAL time spent explicitly for each component.")
+    print("The tool will output the total time to enter in EA, and")
+    print("which Option/Ratio to select for each field.\n")
 
-    # Load configured active fields
-    active_additional_fields = load_fields()
-    all_fields = COMMON_FIELDS + active_additional_fields
+    active_additional = load_fields()
+    all_fields = COMMON_FIELDS + active_additional
     
-    results = {}
-    
-    # Prompt for each field
+    time_spans = {}
     for field in all_fields:
-        label, pct = get_ratio_choice(field)
-        calculated_minutes = calculate_time(total_minutes, pct)
-        results[field] = {
-            "ratio_label": label,
-            "calculated_minutes": calculated_minutes
-        }
+        while True:
+            val = input(f"Enter minutes spent on '{field}' (or hit Enter for 0): ").strip()
+            if not val:
+                val = 0
+            try:
+                mins = int(val)
+                if mins > 0:
+                    time_spans[field] = mins
+                break
+            except ValueError:
+                print("  Invalid input. Please enter a whole number.")
+
+    if not time_spans:
+        print("\nNo time was entered. Exiting.")
+        return
+
+    # Total actual time rounded UP to nearest 15 for CPD logging
+    raw_total = sum(time_spans.values())
+    total_time = int(math.ceil(raw_total / 15.0) * 15)
+
+    if total_time == 0:
+        print("\nTotal rounded time is 0. Exiting.")
+        return
+
+    print("\n" + "="*65)
+    print("RESULTS TO ENTER IN EA PORTAL:")
+    print("="*65)
+    print(f"1. Enter TOTAL TIME: {total_time} minutes ({total_time//60}h {total_time%60}m)")
+    print("-" * 65)
+    print(f"{'2. Select these Options for the fields:':<40}")
+    print("-" * 65)
+    
+    for field, mins in time_spans.items():
+        raw_pct = (mins / total_time) * 100
+        snapped = snap_ratio(raw_pct)
+        # Using the safe step rounding user requested for the final check:
+        adjusted_minutes = math.floor((total_time * (snapped / 100.0)) / 15) * 15
         
-    # Print Summary
-    print("\n" + "="*50)
-    print("CPD ALLOCATION SUMMARY")
-    print("="*50)
-    print(f"Total Logged Time: {total_minutes} minutes ({hours}h {minutes}m)")
-    print("-" * 50)
-    print(f"{'Field':<35} | {'Minutes':<7}")
-    print("-" * 50)
-    for field, data in results.items():
-        if data['calculated_minutes'] > 0:
-            print(f"{field:<35} | {data['calculated_minutes']:<7}")
-    print("="*50)
-    print("\nNote: Times are conservatively rounded down to the nearest 15-minute step.")
+        label = get_label(snapped)
+        print(f"{field:<35} | {label:<12} -> (EA calculates {adjusted_minutes}m)")
+
+    print("="*65)
 
 if __name__ == "__main__":
     main()
