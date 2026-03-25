@@ -72,11 +72,15 @@ function snapRatio(totalMins, actualMins) {
     const ratios = [0, 25, 50, 75, 100];
     let bestRatio = 0, minDiff = Infinity;
     ratios.forEach(r => {
+        if (actualMins > 0 && r === 0) return; // Must give some credit if time was spent
         const calculated = EA_Calculation(totalMins, r);
         const diff = Math.abs(calculated - actualMins);
-        if (diff < minDiff) { minDiff = diff; bestRatio = r; }
+        if (diff < minDiff || (diff === minDiff && r > bestRatio)) { 
+            minDiff = diff; 
+            bestRatio = r; 
+        }
     });
-    return (actualMins > 0 && bestRatio === 0) ? 25 : bestRatio;
+    return bestRatio;
 }
 
 function getLabel(snappedPct) { 
@@ -85,23 +89,51 @@ function getLabel(snappedPct) {
 
 function calculateAndRenderResults() {
     let rawTotalMins = 0;
-    activeFields.forEach(f => rawTotalMins += (f.hours * 60) + f.mins);
+    const targets = [];
+    activeFields.forEach(f => {
+        const m = (f.hours * 60) + f.mins;
+        rawTotalMins += m;
+        if (m > 0) targets.push({field: f, target: m});
+    });
+
     if (rawTotalMins === 0) {
         totalDisplay.textContent = "0h 0m (0 mins)";
         resultsList.innerHTML = '<p class="text-muted" style="text-align:center;">Enter time above to get results.</p>';
         return;
     }
-    const totalTimeEA = Math.ceil(rawTotalMins / 15) * 15;
-    totalDisplay.textContent = `${Math.floor(totalTimeEA / 60)}h ${totalTimeEA % 60}m (${totalTimeEA} mins)`;
+
+    // Brute force the optimal Total Time
+    let bestTotal = 15;
+    let minError = Infinity;
+    let bestTotalDiffFromSum = Infinity;
+
+    for (let t = 15; t <= 4800; t += 15) { // Test up to 80 hours total
+        let currentError = 0;
+        
+        targets.forEach(tgt => {
+            let r = snapRatio(t, tgt.target);
+            let ea = EA_Calculation(t, r);
+            currentError += Math.abs(ea - tgt.target);
+        });
+
+        let diffFromSum = Math.abs(t - rawTotalMins);
+        if (currentError < minError || (currentError === minError && diffFromSum < bestTotalDiffFromSum)) {
+            minError = currentError;
+            bestTotalDiffFromSum = diffFromSum;
+            bestTotal = t;
+        }
+    }
+
+    totalDisplay.textContent = `${Math.floor(bestTotal / 60)}h ${bestTotal % 60}m (${bestTotal} mins)`;
     resultsList.innerHTML = '';
-    activeFields.forEach(field => {
-        const fieldMins = (field.hours * 60) + field.mins;
-        if (fieldMins === 0) return;
-        const snappedPct = snapRatio(totalTimeEA, fieldMins);
-        const eaClaimMins = EA_Calculation(totalTimeEA, snappedPct);
+    
+    // Output the optimal results using the bestTotal we found
+    targets.forEach(t => {
+        const r = snapRatio(bestTotal, t.target);
+        const eaClaimMins = EA_Calculation(bestTotal, r);
         const resNode = resultRowTemplate.content.cloneNode(true);
-        resNode.querySelector('.res-name').textContent = field.name;
-        resNode.querySelector('.res-ratio').textContent = `${getLabel(snappedPct)} → ${Math.floor(eaClaimMins/60)}h ${eaClaimMins%60}m logged`;
+        resNode.querySelector('.res-name').textContent = t.field.name;
+        resNode.querySelector('.res-ratio').textContent = `${getLabel(r)} → ${Math.floor(eaClaimMins/60)}h ${eaClaimMins%60}m logged`;
         resultsList.appendChild(resNode);
     });
 }
