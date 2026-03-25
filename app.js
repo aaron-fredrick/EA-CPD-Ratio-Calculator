@@ -12,6 +12,8 @@ const ALL_FIELDS = [
     "Project Management", "Subsea Engineering", "Mechatronics Engineering", "Cyber Engineering"
 ];
 
+const VERSION = "v0.1.0-test5";
+
 // State
 let activeFields = []; // { name: string, isRequired: boolean, hours: number, mins: number }
 
@@ -27,12 +29,20 @@ const resultsList = document.getElementById('resultsList');
 
 function init() {
     initTheme();
-    COMMON_FIELDS.forEach(f => addFieldToState(f, true));
-    DEFAULT_FIELDS.forEach(f => addFieldToState(f, false));
+    loadState();
+    
+    // If no state, load defaults
+    if (activeFields.length === 0) {
+        COMMON_FIELDS.forEach(f => addFieldToState(f, true));
+        DEFAULT_FIELDS.forEach(f => addFieldToState(f, false));
+    }
+
     addFieldBtn.addEventListener('click', onAddFieldClick);
     themeToggleBtn.addEventListener('click', toggleTheme);
     populateDropdown();
     calculateAndRenderResults();
+    
+    document.getElementById('versionTag').textContent = VERSION;
 }
 
 function initTheme() {
@@ -55,11 +65,30 @@ function setTheme(theme) {
     document.body.classList.remove('light', 'dark');
     document.body.classList.add(theme);
     localStorage.setItem('cpd-theme', theme);
+    // Update button icon
+    themeToggleBtn.textContent = (theme === 'dark') ? '☀️' : '🌙';
+}
+
+function saveState() {
+    localStorage.setItem('cpd-active-fields', JSON.stringify(activeFields));
+}
+
+function loadState() {
+    const saved = localStorage.getItem('cpd-active-fields');
+    if (saved) {
+        try {
+            activeFields = JSON.parse(saved);
+            renderActiveFields();
+        } catch (e) {
+            console.error("Failed to load state", e);
+        }
+    }
 }
 
 function addFieldToState(fieldName, isRequired) {
     if (!activeFields.some(f => f.name === fieldName)) {
         activeFields.push({ name: fieldName, isRequired: isRequired, hours: 0, mins: 0 });
+        saveState();
         renderActiveFields();
         populateDropdown();
         calculateAndRenderResults();
@@ -68,6 +97,7 @@ function addFieldToState(fieldName, isRequired) {
 
 function removeField(fieldName) {
     activeFields = activeFields.filter(f => f.name !== fieldName || f.isRequired);
+    saveState();
     renderActiveFields();
     populateDropdown();
     calculateAndRenderResults();
@@ -78,6 +108,7 @@ function updateFieldTime(fieldName, hours, mins) {
     if (field) {
         field.hours = parseInt(hours) || 0;
         field.mins = parseInt(mins) || 0;
+        saveState();
         calculateAndRenderResults();
     }
 }
@@ -132,7 +163,7 @@ function calculateAndRenderResults() {
     let minError = Infinity;
     let bestTotalDiffFromSum = Infinity;
 
-    for (let t = 15; t <= 4800; t += 15) { // Test up to 80 hours total
+    for (let t = 15; t <= 6000; t += 15) { // Test up to 100 hours total (Matches CLI)
         let currentError = 0;
         
         targets.forEach(tgt => {

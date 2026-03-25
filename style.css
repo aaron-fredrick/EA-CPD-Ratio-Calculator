@@ -297,7 +297,9 @@ input[type="number"]:focus, select:focus {
     display: block;
     margin-top: 0.5rem;
     font-style: italic;
-    opacity: 0.8;
+    font-weight: 600;
+    color: var(--accent);
+    opacity: 0.9;
 }
 
 .theme-toggle-container {
