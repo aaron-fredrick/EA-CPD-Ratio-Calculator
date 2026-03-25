@@ -19,17 +19,42 @@ let activeFields = []; // { name: string, isRequired: boolean, hours: number, mi
 const activeFieldsList = document.getElementById('activeFieldsList');
 const availableFieldsDropdown = document.getElementById('availableFieldsDropdown');
 const addFieldBtn = document.getElementById('addFieldBtn');
+const themeToggleBtn = document.getElementById('themeToggleBtn');
 const fieldRowTemplate = document.getElementById('fieldRowTemplate');
 const resultRowTemplate = document.getElementById('resultRowTemplate');
 const totalDisplay = document.getElementById('totalDisplay');
 const resultsList = document.getElementById('resultsList');
 
 function init() {
+    initTheme();
     COMMON_FIELDS.forEach(f => addFieldToState(f, true));
     DEFAULT_FIELDS.forEach(f => addFieldToState(f, false));
     addFieldBtn.addEventListener('click', onAddFieldClick);
+    themeToggleBtn.addEventListener('click', toggleTheme);
     populateDropdown();
     calculateAndRenderResults();
+}
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('cpd-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        setTheme(prefersDark ? 'dark' : 'light');
+    }
+}
+
+function toggleTheme() {
+    const isDark = document.body.classList.contains('dark');
+    setTheme(isDark ? 'light' : 'dark');
+}
+
+function setTheme(theme) {
+    document.body.classList.remove('light', 'dark');
+    document.body.classList.add(theme);
+    localStorage.setItem('cpd-theme', theme);
 }
 
 function addFieldToState(fieldName, isRequired) {

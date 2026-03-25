@@ -16,7 +16,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="light">
+    <div class="theme-toggle-container">
+        <button id="themeToggleBtn" title="Toggle Light/Dark Mode">🌓</button>
+    </div>
     <div class="container">
         <header>
             <h1>EA CPD Ratio Calculator <small id="versionTag" style="font-size: 0.8rem; opacity: 0.7;">v0.1.0-test4</small></h1>
@@ -56,6 +59,7 @@
 
         <section class="summary-section">
             <p>Note: Calculations match EA's internal 15-minute rounding and division logic.</p>
+            <span class="disclaimer">⚖️ DISCLAIMER: This tool is NOT affiliated with Engineers Australia (EA). Final entry should be verified against the official EA portal.</span>
         </section>
     </div>
 

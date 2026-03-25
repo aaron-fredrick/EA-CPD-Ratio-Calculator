@@ -1,5 +1,5 @@
 :root {
-    /* Colors (Light Mode) */
+    /* Base Color Set (Default Light) */
     --accent: #E31837; /* EA Red-Orange Accent */
     --accent-hover: #C5152F;
     --accent-gradient: linear-gradient(135deg, #E31837 0%, #FF5A1F 100%);
@@ -15,15 +15,24 @@
     --radius: 12px;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-page: #0f172a; /* Deep Navy Dark */
-        --card-bg: rgba(30, 41, 59, 0.85); /* Slate Dark */
-        --text-main: #f1f5f9;
-        --text-muted: #94a3b8;
-        --border: rgba(51, 65, 85, 0.7);
-        --input-bg: #1e293b;
-    }
+body.dark {
+    --bg-page: #0f172a; /* Deep Navy Dark */
+    --card-bg: rgba(30, 41, 59, 0.85); /* Slate Dark */
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: rgba(51, 65, 85, 0.7);
+    --input-bg: #1e293b;
+}
+
+/* Base Light variables already in :root, 
+   but we can be explicit if we want to force .light */
+body.light {
+    --bg-page: #f4f7f6;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-main: #2d3748;
+    --text-muted: #718096;
+    --border: rgba(226, 232, 240, 0.8);
+    --input-bg: #fdfdfd;
 }
 
 * {
@@ -274,12 +283,50 @@ input[type="number"]:focus, select:focus {
     font-size: 0.85rem;
 }
 
-/* Summary */
+/* Summary & Disclaimer */
 .summary-section {
     text-align: center;
     color: var(--text-muted);
-    font-size: 0.85rem;
-    padding-bottom: 2rem;
+    font-size: 0.8rem;
+    padding: 2rem 1rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+}
+
+.disclaimer {
+    display: block;
+    margin-top: 0.5rem;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.theme-toggle-container {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+}
+
+#themeToggleBtn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 0.6rem;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+}
+
+#themeToggleBtn:hover {
+    transform: scale(1.1);
+    border-color: var(--accent);
 }
 
 @media (min-width: 500px) {
