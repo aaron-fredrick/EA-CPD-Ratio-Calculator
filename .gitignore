@@ -1,0 +1,15 @@
+# Agent Folders
+agent/
+.agent/
+_agent/
+.agents/
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Local Environment
+.env
+.venv/
+env/
+venv/
