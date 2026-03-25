@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA CPD Ratio Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EA CPD Ratio Calculator <small id="versionTag" style="font-size: 0.8rem; opacity: 0.7;">v0.1.0-test1</small></h1>
+            <p>Enter the <b>actual time</b> you spent on each field to get the correct EA portal options.</p>
+        </header>
+
+        <section class="card fields-section">
+            <div class="section-header">
+                <h2>Time Spent per Field</h2>
+            </div>
+            <div id="activeFieldsList" class="fields-list">
+                <!-- Dynamically populated rows -->
+            </div>
+            
+            <div class="add-controls mt-2">
+                <select id="availableFieldsDropdown">
+                    <option value="" disabled selected>Select an engineering field to add...</option>
+                </select>
+                <button id="addFieldBtn" class="btn-primary">Add Field</button>
+            </div>
+        </section>
+
+        <section class="card results-section">
+            <h2>Results to enter in EA Portal:</h2>
+            <div class="total-result-display">
+                <span class="label">1. Enter TOTAL TIME:</span>
+                <span id="totalDisplay" class="value">0h 0m (0 mins)</span>
+            </div>
+            
+            <div class="ratios-result-display">
+                <p><b>2. Select these Options for the fields:</b></p>
+                <div id="resultsList" class="results-list">
+                    <!-- Results dynamically populated -->
+                </div>
+            </div>
+        </section>
+
+        <section class="summary-section">
+            <p>Note: Calculations match EA's internal 15-minute rounding and division logic.</p>
+        </section>
+    </div>
+
+    <!-- Template for an input row -->
+    <template id="fieldRowTemplate">
+        <div class="field-row">
+            <div class="field-info">
+                <span class="field-name"></span>
+                <button class="remove-btn" title="Remove field">&times;</button>
+            </div>
+            <div class="field-inputs">
+                <div class="input-mini">
+                    <label>Hours</label>
+                    <input type="number" class="hr-input" min="0" value="0">
+                </div>
+                <div class="input-mini">
+                    <label>Mins</label>
+                    <input type="number" class="min-input" min="0" value="0">
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template for a result row -->
+    <template id="resultRowTemplate">
+        <div class="result-row">
+            <div class="res-name">Field Name</div>
+            <div class="res-ratio">Some (25%)</div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>

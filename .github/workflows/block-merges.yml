@@ -1,0 +1,21 @@
+name: Block Cross-Branch Merges
+
+on:
+  pull_request:
+    branches: [main, gh-pages]
+
+jobs:
+  check-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if merging between main and gh-pages
+        run: |
+          SOURCE="${{ github.head_ref }}"
+          TARGET="${{ github.base_ref }}"
+          echo "Source branch: $SOURCE"
+          echo "Target branch: $TARGET"
+          
+          if [[ ("$SOURCE" == "main" && "$TARGET" == "gh-pages") || ("$SOURCE" == "gh-pages" && "$TARGET" == "main") ]]; then
+            echo "::error:: Merging between 'main' and 'gh-pages' is strictly forbidden because they serve different purposes (CLI vs Web App)."
+            exit 1
+          fi
