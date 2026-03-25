@@ -65,6 +65,9 @@ def main():
     print("v0.1.0-test4")
     print("="*65)
     print("Determines the exact EA Portal options for your field times.")
+    print("-" * 35)
+    print("⚖️ DISCLAIMER: This tool is NOT affiliated with Engineers Australia (EA).")
+    print("   Final entry should be verified against the official EA portal.")
     print("="*65 + "\n")
 
     active_additional = load_fields()

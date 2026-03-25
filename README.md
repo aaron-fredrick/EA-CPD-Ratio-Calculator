@@ -7,7 +7,19 @@ When logging CPD items, EA requires you to enter ONE Total Time and then select 
 
 This tool solves that: you input the **actual minutes** you spent on each field, and the tool calculates the total rounded time to input in EA *and* tells you exactly which Options (Some, Half, etc) to select.
 
-## Usage Guide
+## ✨ Online Browser Version (Recommended)
+For an even simpler point-and-click interface where you can enter **Hours AND Minutes** per field, use our official web tool:
+
+### 🔗 [Launch EA CPD Ratio Calculator (Web)](https://aaron-fredrick.github.io/EA-CPD-Ratio-Calculator/)
+
+---
+
+## ⚖️ Disclaimer
+**IMPORTANT**: This tool is an independent utility designed to assist with CPD logging calculations. It is **not** affiliated with, endorsed by, or in any way officially connected with **Engineers Australia (EA)**. All calculations are based on public CPD logging requirements as of 2024. Always verify your final entry against the official EA portal requirements.
+
+---
+
+## Usage Guide (CLI Version)
 1. **Configure Fields**: Open `fields.conf` in any text editor. 
    - Remove the `#` at the start of any line to **enable** that engineering field for your session.
    - Add a `#` at the start of a line to **disable** it.
@@ -18,6 +30,3 @@ This tool solves that: you input the **actual minutes** you spent on each field,
    - Enter your actually spent minutes for each field when prompted.
 4. **View Results**:
    - The tool will output the exact Total Time to enter into EA, and the specific ratios to click!
-
-## Note on Web Version
-A graphical, browser-based version of this tool is available on the `gh-pages` branch. We recommend using the web version for an even simpler point-and-click interface where you can enter Hours AND Minutes per field!
