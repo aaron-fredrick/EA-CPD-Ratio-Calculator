@@ -62,7 +62,7 @@ def get_label(snapped_pct):
 def main():
     print("="*65)
     print("EA CPD Ratio Calculator (CLI)")
-    print("v0.1.0-test4")
+    print("v0.1.0-test5")
     print("="*65)
     print("Determines the exact EA Portal options for your field times.")
     print("-" * 35)
