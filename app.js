@@ -14,6 +14,13 @@ const ALL_FIELDS = [
 
 const VERSION = "v0.1.0-test5";
 
+// Analytics Helper
+function trackEvent(eventName, params = {}) {
+    if (typeof gtag === 'function') {
+        gtag('event', eventName, params);
+    }
+}
+
 // State
 let activeFields = []; // { name: string, isRequired: boolean, hours: number, mins: number }
 
@@ -67,6 +74,7 @@ function setTheme(theme) {
     localStorage.setItem('cpd-theme', theme);
     // Update button icon
     themeToggleBtn.textContent = (theme === 'dark') ? '☀️' : '🌙';
+    trackEvent('theme_changed', { theme: theme });
 }
 
 function saveState() {
@@ -92,6 +100,7 @@ function addFieldToState(fieldName, isRequired) {
         renderActiveFields();
         populateDropdown();
         calculateAndRenderResults();
+        trackEvent('field_added', { field_name: fieldName });
     }
 }
 
@@ -101,6 +110,7 @@ function removeField(fieldName) {
     renderActiveFields();
     populateDropdown();
     calculateAndRenderResults();
+    trackEvent('field_removed', { field_name: fieldName });
 }
 
 function updateFieldTime(fieldName, hours, mins) {
@@ -110,6 +120,15 @@ function updateFieldTime(fieldName, hours, mins) {
         field.mins = parseInt(mins) || 0;
         saveState();
         calculateAndRenderResults();
+        
+        // Debounced analytics for time update
+        clearTimeout(field._trackTimeout);
+        field._trackTimeout = setTimeout(() => {
+            trackEvent('time_updated', { 
+                field_name: fieldName, 
+                total_mins: (field.hours * 60) + field.mins 
+            });
+        }, 2000);
     }
 }
 
