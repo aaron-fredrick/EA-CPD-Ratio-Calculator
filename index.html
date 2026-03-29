@@ -65,12 +65,12 @@
         })(window, document, "clarity", "script", "w3gdvjotsp");
     </script>
 
-    <!-- Non-blocking Google Fonts -->
+    <!-- Non-blocking Google Fonts: display=optional avoids font-swap layout shift (CLS) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=optional">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=optional" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=optional"></noscript>
 
     <link rel="preload" href="app.js" as="script">
 
@@ -98,7 +98,8 @@
             <div class="section-header">
                 <h2>Time Spent per Field</h2>
             </div>
-            <div id="activeFieldsList" class="fields-list">
+            <!-- fields-loading pre-reserves height so JS population doesn't cause CLS -->
+            <div id="activeFieldsList" class="fields-list fields-loading">
                 <!-- Dynamically populated rows -->
             </div>
             

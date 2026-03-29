@@ -1,13 +1,15 @@
 :root {
     /* Base Color Set (Default Light) */
-    --accent: #E31837; /* EA Red-Orange Accent */
+    --accent: #E31837; /* EA Red — use for gradients and decorative elements */
     --accent-hover: #C5152F;
     --accent-gradient: linear-gradient(135deg, #E31837 0%, #FF5A1F 100%);
-    
+    /* Darker red for body text on light backgrounds — passes WCAG AA (5.5:1 on #f4f7f6) */
+    --accent-on-light: #bf1130;
+
     --bg-page: #f4f7f6;
     --card-bg: rgba(255, 255, 255, 0.95);
-    --text-main: #1a202c;   /* bumped from #2d3748 — passes WCAG AA on bg #f4f7f6 */
-    --text-muted: #4a5568;  /* bumped from #718096 — passes WCAG AA (6.2:1 on white) */
+    --text-main: #1a202c;   /* passes WCAG AA on bg #f4f7f6 */
+    --text-muted: #4a5568;  /* passes WCAG AA (6.2:1 on white) */
     --text-on-accent: #ffffff;
     --border: rgba(203, 213, 224, 0.9);
     --input-bg: #ffffff;
@@ -16,12 +18,14 @@
 }
 
 body.dark {
-    --bg-page: #0f172a; /* Deep Navy Dark */
-    --card-bg: rgba(30, 41, 59, 0.85); /* Slate Dark */
+    --bg-page: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.85);
     --text-main: #f1f5f9;
     --text-muted: #94a3b8;
     --border: rgba(51, 65, 85, 0.7);
     --input-bg: #1e293b;
+    /* Bright red is fine for text on dark backgrounds */
+    --accent-on-light: #E31837;
     color-scheme: dark;
 }
 
@@ -41,6 +45,7 @@ body.light {
     --text-muted: #4a5568;
     --border: rgba(203, 213, 224, 0.9);
     --input-bg: #ffffff;
+    --accent-on-light: #bf1130;
 }
 
 /* Visually hidden but accessible to screen readers */
@@ -130,6 +135,15 @@ h2 {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+}
+
+/*
+ * Pre-reserve vertical space equal to ~3 stacked field rows on mobile.
+ * JS removes this class after the first renderActiveFields() call.
+ * Without it, inserting 3 rows causes a ~270px layout shift (CLS).
+ */
+.fields-list.fields-loading {
+    min-height: 280px;
 }
 
 .field-row {
@@ -368,7 +382,9 @@ input[type="number"]:focus, select:focus {
     margin-top: 0.5rem;
     font-style: italic;
     font-weight: 600;
-    color: var(--accent);
+    /* Use --accent-on-light (#bf1130) which passes WCAG AA (5.5:1) on the page background.
+       The bright --accent (#E31837) only reaches ~4.24:1 on #f4f7f6, failing the 4.5:1 threshold. */
+    color: var(--accent-on-light);
 }
 
 /* Reset link — uses --text-main to guarantee WCAG AA contrast at small sizes */

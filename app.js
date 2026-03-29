@@ -85,6 +85,9 @@ function init() {
         DEFAULT_FIELDS.forEach(f => addFieldToState(f, false, true));
     }
 
+    // Remove the loading placeholder once fields are committed to the DOM
+    activeFieldsList.classList.remove('fields-loading');
+
     addFieldBtn.addEventListener('click', onAddFieldClick);
     themeToggleBtn.addEventListener('click', toggleTheme);
     calculateBtn.addEventListener('click', onCalculateClick);
@@ -409,4 +412,9 @@ function renderActiveFields() {
 }
 
 function onAddFieldClick() { if (availableFieldsDropdown.value) addFieldToState(availableFieldsDropdown.value, false); }
-document.addEventListener('DOMContentLoaded', init);
+
+// Script is placed at the end of <body>, so the DOM is fully available here.
+// Calling init() directly avoids waiting for the DOMContentLoaded event-loop
+// tick, narrowing the window between the empty-state first paint and populated
+// content — reducing Cumulative Layout Shift (CLS).
+init();
