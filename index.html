@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="uU0pOmzq3_gndMAzrdwhzL3_kPKmVermyyEJqG0AAmM" />
     <title>EA CPD Ratio Calculator</title>
     <link rel="icon" type="image/png" href="https://github.com/aaron-fredrick.png">
     <link rel="apple-touch-icon" href="https://github.com/aaron-fredrick.png">
@@ -42,13 +43,22 @@
                 </select>
                 <button id="addFieldBtn" class="btn-primary">Add Field</button>
             </div>
+            
+            <div class="action-controls mt-2" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button id="resetBtn" class="btn-secondary" style="flex: 1;">Reset</button>
+                <button id="shareBtn" class="btn-secondary" style="flex: 1;" title="Share current state">Share</button>
+                <button id="calculateBtn" class="btn-primary" style="flex: 2; font-size: 1.1rem; padding: 0.75rem;">Calculate Results</button>
+            </div>
         </section>
 
         <section class="card results-section">
             <h2>Results to enter in EA Portal:</h2>
             <div class="total-result-display">
                 <span class="label">1. Enter TOTAL TIME:</span>
-                <span id="totalDisplay" class="value">0h 0m (0 mins)</span>
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="totalDisplay" class="value">0h 0m (0 mins)</span>
+                    <button id="copyTotalBtn" class="icon-btn" title="Copy Total to Clipboard">📋</button>
+                </span>
             </div>
             
             <div class="ratios-result-display">

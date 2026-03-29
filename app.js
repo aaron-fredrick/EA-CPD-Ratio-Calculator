@@ -12,7 +12,7 @@ const ALL_FIELDS = [
     "Project Management", "Subsea Engineering", "Mechatronics Engineering", "Cyber Engineering"
 ];
 
-const VERSION = "v0.1.0-test5";
+const VERSION = "v0.1.0-test6";
 
 // Analytics Helper
 function trackEvent(eventName, params = {}) {
@@ -33,21 +33,67 @@ const fieldRowTemplate = document.getElementById('fieldRowTemplate');
 const resultRowTemplate = document.getElementById('resultRowTemplate');
 const totalDisplay = document.getElementById('totalDisplay');
 const resultsList = document.getElementById('resultsList');
+const calculateBtn = document.getElementById('calculateBtn');
+const resetBtn = document.getElementById('resetBtn');
+const shareBtn = document.getElementById('shareBtn');
+const copyTotalBtn = document.getElementById('copyTotalBtn');
+
+let hasStarted = false;
+function markStarted() {
+    if (!hasStarted) {
+        hasStarted = true;
+        trackEvent('calculator_start');
+    }
+}
 
 function init() {
     initTheme();
-    loadState();
+
+    let isSharedLoad = false;
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedState = urlParams.get('state');
+
+    if (sharedState) {
+        try {
+            activeFields = JSON.parse(atob(decodeURIComponent(sharedState)));
+            window.history.replaceState({}, document.title, window.location.pathname);
+            renderActiveFields();
+            isSharedLoad = true;
+            trackEvent('calculator_start', { method: 'shared_link' });
+        } catch (e) {
+            console.error("Failed to parse shared state", e);
+            loadState();
+        }
+    } else {
+        loadState();
+    }
     
     // If no state, load defaults
     if (activeFields.length === 0) {
-        COMMON_FIELDS.forEach(f => addFieldToState(f, true));
-        DEFAULT_FIELDS.forEach(f => addFieldToState(f, false));
+        COMMON_FIELDS.forEach(f => addFieldToState(f, true, true));
+        DEFAULT_FIELDS.forEach(f => addFieldToState(f, false, true));
     }
 
     addFieldBtn.addEventListener('click', onAddFieldClick);
     themeToggleBtn.addEventListener('click', toggleTheme);
+    calculateBtn.addEventListener('click', onCalculateClick);
+    resetBtn.addEventListener('click', onResetClick);
+    shareBtn.addEventListener('click', onShareClick);
+    copyTotalBtn.addEventListener('click', onCopyTotalClick);
     populateDropdown();
-    calculateAndRenderResults();
+    
+    const hasAnyTime = activeFields.some(f => (f.hours > 0 || f.mins > 0));
+    if (isSharedLoad) {
+        calculateAndRenderResults();
+    } else if (hasAnyTime) {
+        showPlaceholderResults("Click Calculate Results to process saved times.");
+    } else {
+        showPlaceholderResults("Click Calculate Results when ready.");
+    }
+    
+    setTimeout(() => {
+        trackEvent('time_spent', { seconds: 60 });
+    }, 60000);
     
     document.getElementById('versionTag').textContent = VERSION;
 }
@@ -93,40 +139,95 @@ function loadState() {
     }
 }
 
-function addFieldToState(fieldName, isRequired) {
+function showPlaceholderResults(msg) {
+    totalDisplay.textContent = "--h --m (-- mins)";
+    resultsList.innerHTML = `<p class="text-muted" style="text-align:center;">${msg}</p>`;
+}
+
+function onCalculateClick() {
+    calculateAndRenderResults();
+}
+
+function onResetClick() {
+    trackEvent('reset');
+    hasStarted = false;
+    activeFields = [];
+    COMMON_FIELDS.forEach(f => addFieldToState(f, true, true));
+    DEFAULT_FIELDS.forEach(f => addFieldToState(f, false, true));
+    saveState();
+    showPlaceholderResults("Calculator reset. Enter time and click Calculate.");
+}
+
+function onShareClick() {
+    const stateStr = encodeURIComponent(btoa(JSON.stringify(activeFields)));
+    const url = window.location.origin + window.location.pathname + '?state=' + stateStr;
+    
+    navigator.clipboard.writeText(url).then(() => {
+        const originalText = shareBtn.textContent;
+        shareBtn.textContent = 'Copied Link!';
+        setTimeout(() => shareBtn.textContent = originalText, 2000);
+        
+        trackEvent('share_click', { 
+            fields_count: activeFields.length,
+            url_length: url.length 
+        });
+    }).catch(err => {
+        console.error("Failed to copy share link", err);
+        alert("Failed to copy to clipboard. View console for details.");
+    });
+}
+
+function onCopyTotalClick() {
+    const textToCopy = totalDisplay.textContent;
+    if (textToCopy.includes("--")) return; // Don't copy placeholder
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalText = copyTotalBtn.textContent;
+        copyTotalBtn.textContent = '✅';
+        setTimeout(() => copyTotalBtn.textContent = originalText, 1500);
+        trackEvent('copy_output', { total_value: textToCopy });
+    }).catch(err => {
+        console.error("Failed to copy", err);
+    });
+}
+
+function addFieldToState(fieldName, isRequired, isSystemInit = false) {
     if (!activeFields.some(f => f.name === fieldName)) {
+        if (!isSystemInit) markStarted();
         activeFields.push({ name: fieldName, isRequired: isRequired, hours: 0, mins: 0 });
         saveState();
         renderActiveFields();
         populateDropdown();
-        calculateAndRenderResults();
-        trackEvent('field_added', { field_name: fieldName });
+        showPlaceholderResults("Fields updated. Click Calculate Results when ready.");
+        if (!isSystemInit) trackEvent('input_change', { field_name: fieldName, action: 'add' });
     }
 }
 
 function removeField(fieldName) {
+    markStarted();
     activeFields = activeFields.filter(f => f.name !== fieldName || f.isRequired);
     saveState();
     renderActiveFields();
     populateDropdown();
-    calculateAndRenderResults();
-    trackEvent('field_removed', { field_name: fieldName });
+    showPlaceholderResults("Fields updated. Click Calculate Results when ready.");
+    trackEvent('input_change', { field_name: fieldName, action: 'remove' });
 }
 
 function updateFieldTime(fieldName, hours, mins) {
     const field = activeFields.find(f => f.name === fieldName);
     if (field) {
+        markStarted();
         field.hours = parseInt(hours) || 0;
         field.mins = parseInt(mins) || 0;
         saveState();
-        calculateAndRenderResults();
+        showPlaceholderResults("Inputs changed. Click Calculate Results when ready.");
         
         // Debounced analytics for time update
         clearTimeout(field._trackTimeout);
         field._trackTimeout = setTimeout(() => {
-            trackEvent('time_updated', { 
+            trackEvent('input_change', { 
                 field_name: fieldName, 
-                total_mins: (field.hours * 60) + field.mins 
+                total_mins: (field.hours * 60) + field.mins,
+                action: 'time_edit'
             });
         }, 2000);
     }
@@ -174,6 +275,7 @@ function calculateAndRenderResults() {
     if (rawTotalMins === 0) {
         totalDisplay.textContent = "0h 0m (0 mins)";
         resultsList.innerHTML = '<p class="text-muted" style="text-align:center;">Enter time above to get results.</p>';
+        trackEvent('error', { type: 'invalid_input', message: 'Calculated with 0 total time' });
         return;
     }
 
@@ -202,6 +304,9 @@ function calculateAndRenderResults() {
     totalDisplay.textContent = `${Math.floor(bestTotal / 60)}h ${bestTotal % 60}m (${bestTotal} mins)`;
     resultsList.innerHTML = '';
     
+    const resultsDataOutput = [];
+    const inputParamsOutput = [];
+
     // Output the optimal results using the bestTotal we found
     targets.forEach(t => {
         const r = snapRatio(bestTotal, t.target);
@@ -210,6 +315,20 @@ function calculateAndRenderResults() {
         resNode.querySelector('.res-name').textContent = t.field.name;
         resNode.querySelector('.res-ratio').textContent = `${getLabel(r)} → ${Math.floor(eaClaimMins/60)}h ${eaClaimMins%60}m logged`;
         resultsList.appendChild(resNode);
+        
+        resultsDataOutput.push({ field: t.field.name, ratio: r, ea_mins: eaClaimMins });
+    });
+    
+    activeFields.forEach(f => {
+        inputParamsOutput.push({ field: f.name, mins: (f.hours*60 + f.mins) });
+    });
+
+    trackEvent('calculator_complete', {
+        calculated_total_mins: bestTotal,
+        raw_total_mins: rawTotalMins,
+        error_margin: minError,
+        inputs: JSON.stringify(inputParamsOutput),
+        outputs: JSON.stringify(resultsDataOutput)
     });
 }
 
