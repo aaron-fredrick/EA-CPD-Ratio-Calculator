@@ -37,6 +37,7 @@ const calculateBtn = document.getElementById('calculateBtn');
 const resetBtn = document.getElementById('resetBtn');
 const shareBtn = document.getElementById('shareBtn');
 const copyTotalBtn = document.getElementById('copyTotalBtn');
+const resultsSection = document.getElementById('resultsSection');
 
 let hasStarted = false;
 function markStarted() {
@@ -140,21 +141,21 @@ function loadState() {
 }
 
 function showPlaceholderResults(msg) {
-    totalDisplay.textContent = "--h --m (-- mins)";
-    resultsList.innerHTML = `<p class="text-muted" style="text-align:center;">${msg}</p>`;
+    resultsSection.style.display = 'none';
 }
 
 function onCalculateClick() {
     calculateAndRenderResults();
 }
 
-function onResetClick() {
+function onResetClick(e) {
+    if (e) e.preventDefault();
     trackEvent('reset');
     hasStarted = false;
     activeFields = [];
-    COMMON_FIELDS.forEach(f => addFieldToState(f, true, true));
-    DEFAULT_FIELDS.forEach(f => addFieldToState(f, false, true));
     saveState();
+    renderActiveFields();
+    populateDropdown();
     showPlaceholderResults("Calculator reset. Enter time and click Calculate.");
 }
 
@@ -273,11 +274,12 @@ function calculateAndRenderResults() {
     });
 
     if (rawTotalMins === 0) {
-        totalDisplay.textContent = "0h 0m (0 mins)";
-        resultsList.innerHTML = '<p class="text-muted" style="text-align:center;">Enter time above to get results.</p>';
+        resultsSection.style.display = 'none';
         trackEvent('error', { type: 'invalid_input', message: 'Calculated with 0 total time' });
         return;
     }
+
+    resultsSection.style.display = 'block';
 
     // Brute force the optimal Total Time
     let bestTotal = 15;
