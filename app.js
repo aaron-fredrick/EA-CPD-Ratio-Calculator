@@ -368,17 +368,39 @@ function populateDropdown() {
         });
 }
 
+function slugify(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 function renderActiveFields() {
     activeFieldsList.innerHTML = '';
     activeFields.forEach(field => {
         const rowNode = fieldRowTemplate.content.cloneNode(true);
         rowNode.querySelector('.field-name').textContent = field.name;
+
         const rmElement = rowNode.querySelector('.remove-btn');
-        if (field.isRequired) rmElement.style.display = 'none'; 
+        rmElement.setAttribute('aria-label', `Remove ${field.name}`);
+        if (field.isRequired) rmElement.style.display = 'none';
         else rmElement.addEventListener('click', () => removeField(field.name));
 
-        const hr = rowNode.querySelector('.hr-input'), mn = rowNode.querySelector('.min-input');
-        hr.value = field.hours; mn.value = field.mins;
+        // Wire unique label–input associations for accessibility (Lighthouse label audit)
+        const slug = slugify(field.name);
+        const hr_id = `hr-${slug}`;
+        const mn_id = `mn-${slug}`;
+
+        const hr = rowNode.querySelector('.hr-input');
+        const mn = rowNode.querySelector('.min-input');
+        const hrLabel = rowNode.querySelector('.hr-label');
+        const mnLabel = rowNode.querySelector('.min-label');
+
+        hr.id = hr_id;
+        mn.id = mn_id;
+        hrLabel.htmlFor = hr_id;
+        mnLabel.htmlFor = mn_id;
+
+        hr.value = field.hours;
+        mn.value = field.mins;
+
         const update = () => updateFieldTime(field.name, hr.value, mn.value);
         hr.addEventListener('input', update);
         mn.addEventListener('input', update);

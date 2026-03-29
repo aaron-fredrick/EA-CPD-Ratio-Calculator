@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
 
     <!-- Primary SEO -->
     <title>EA CPD Ratio Calculator — Engineers Australia CPD Tool</title>
@@ -55,6 +56,15 @@
       });
     </script>
 
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "w3gdvjotsp");
+    </script>
+
     <!-- Non-blocking Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,13 +73,22 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap"></noscript>
 
     <link rel="preload" href="app.js" as="script">
-    <link rel="stylesheet" href="style.css">
+
+    <!-- Non-blocking stylesheet — eliminates render-blocking CSS (Lighthouse) -->
+    <link rel="preload" as="style" href="style.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
+
+    <!-- Inline critical CSS: body background + font stack so first paint is styled -->
+    <style>
+        body { background: #f4f7f6; font-family: 'Inter', system-ui, -apple-system, sans-serif; margin: 0; }
+        body.dark { background: #0f172a; }
+    </style>
 </head>
 <body class="light">
     <div class="theme-toggle-container">
-        <button id="themeToggleBtn" title="Toggle Light/Dark Mode">🌓</button>
+        <button id="themeToggleBtn" aria-label="Toggle Light/Dark Mode" title="Toggle Light/Dark Mode">🌓</button>
     </div>
-    <div class="container">
+    <main class="container">
         <header>
             <h1>EA CPD Ratio Calculator <small id="versionTag" style="font-size: 0.8rem; opacity: 0.7;"></small></h1>
             <p>Enter the <b>actual time</b> you spent on each field to get the correct EA portal options.</p>
@@ -84,7 +103,8 @@
             </div>
             
             <div class="add-controls mt-2">
-                <select id="availableFieldsDropdown">
+                <label for="availableFieldsDropdown" class="sr-only">Engineering field</label>
+                <select id="availableFieldsDropdown" aria-label="Select an engineering field to add">
                     <option value="" disabled selected>Select an engineering field to add...</option>
                 </select>
                 <button id="addFieldBtn" class="btn-primary">Add Field</button>
@@ -92,7 +112,7 @@
             
             <div class="action-controls mt-2" style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; margin-top: 1.5rem;">
                 <button id="calculateBtn" class="btn-primary" style="font-size: 1.1rem; padding: 0.75rem; width: 100%;">Calculate Results</button>
-                <a href="#" id="resetBtn" class="reset-link" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: underline;">Reset All</a>
+                <a href="#" id="resetBtn" class="reset-link">Reset All</a>
             </div>
         </section>
 
@@ -124,7 +144,7 @@
             <p>Note: Calculations match EA's internal 15-minute rounding and division logic.</p>
             <span class="disclaimer">⚖️ DISCLAIMER: This tool is NOT affiliated with Engineers Australia (EA). Final entry should be verified against the official EA portal.</span>
         </section>
-    </div>
+    </main>
 
     <!-- Template for an input row -->
     <template id="fieldRowTemplate">
@@ -135,12 +155,12 @@
             </div>
             <div class="field-inputs">
                 <div class="input-mini">
-                    <label>Hours</label>
-                    <input type="number" class="hr-input" min="0" value="0">
+                    <label class="hr-label">Hours</label>
+                    <input type="number" class="hr-input" min="0" max="999" value="0" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <div class="input-mini">
-                    <label>Mins</label>
-                    <input type="number" class="min-input" min="0" value="0">
+                    <label class="min-label">Mins</label>
+                    <input type="number" class="min-input" min="0" max="59" value="0" inputmode="numeric" pattern="[0-9]*">
                 </div>
             </div>
         </div>

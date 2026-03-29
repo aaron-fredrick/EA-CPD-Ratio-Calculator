@@ -6,11 +6,11 @@
     
     --bg-page: #f4f7f6;
     --card-bg: rgba(255, 255, 255, 0.95);
-    --text-main: #2d3748;
-    --text-muted: #718096;
+    --text-main: #1a202c;   /* bumped from #2d3748 — passes WCAG AA on bg #f4f7f6 */
+    --text-muted: #4a5568;  /* bumped from #718096 — passes WCAG AA (6.2:1 on white) */
     --text-on-accent: #ffffff;
-    --border: rgba(226, 232, 240, 0.8);
-    --input-bg: #fdfdfd;
+    --border: rgba(203, 213, 224, 0.9);
+    --input-bg: #ffffff;
     --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
     --radius: 12px;
 }
@@ -37,10 +37,23 @@ body.dark input[type="number"]::-webkit-outer-spin-button {
 body.light {
     --bg-page: #f4f7f6;
     --card-bg: rgba(255, 255, 255, 0.95);
-    --text-main: #2d3748;
-    --text-muted: #718096;
-    --border: rgba(226, 232, 240, 0.8);
-    --input-bg: #fdfdfd;
+    --text-main: #1a202c;
+    --text-muted: #4a5568;
+    --border: rgba(203, 213, 224, 0.9);
+    --input-bg: #ffffff;
+}
+
+/* Visually hidden but accessible to screen readers */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 * {
@@ -59,7 +72,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 2rem 1rem;
+    /* 56px top on mobile — leaves room for fixed theme toggle (48px) */
+    padding: 3.5rem 0.75rem 2rem;
     transition: background 0.3s ease;
 }
 
@@ -184,10 +198,13 @@ input[type="number"], select {
     border: 1px solid var(--border);
     border-radius: 6px;
     font-family: inherit;
+    /* 16px minimum prevents iOS Safari from zooming on input focus */
     font-size: 1rem;
     background: var(--input-bg);
     color: var(--text-main);
     transition: all 0.2s ease;
+    /* Minimum 44px touch target height (Apple HIG / WCAG 2.5.5) */
+    min-height: 44px;
 }
 
 input[type="number"]:focus, select:focus {
@@ -212,9 +229,12 @@ input[type="number"]:focus, select:focus {
     border: none;
     padding: 0 1.5rem;
     border-radius: 6px;
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     transition: opacity 0.2s;
+    /* Minimum 44px touch target */
+    min-height: 44px;
 }
 
 .btn-primary:hover {
@@ -233,9 +253,12 @@ input[type="number"]:focus, select:focus {
     border: 2px solid var(--border);
     padding: 0 1.5rem;
     border-radius: 6px;
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
+    /* Minimum 44px touch target */
+    min-height: 44px;
 }
 
 .btn-secondary:hover {
@@ -254,6 +277,11 @@ input[type="number"]:focus, select:focus {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Minimum 44px touch target */
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem;
+    color: var(--text-muted);
 }
 
 .icon-btn:hover {
@@ -341,7 +369,20 @@ input[type="number"]:focus, select:focus {
     font-style: italic;
     font-weight: 600;
     color: var(--accent);
-    opacity: 0.9;
+}
+
+/* Reset link — uses --text-main to guarantee WCAG AA contrast at small sizes */
+.reset-link {
+    color: var(--text-main);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+
+.reset-link:hover {
+    opacity: 1;
 }
 
 .theme-toggle-container {
@@ -374,6 +415,10 @@ input[type="number"]:focus, select:focus {
 }
 
 @media (min-width: 500px) {
+    body {
+        padding: 2rem 1rem;
+    }
+
     .field-row {
         flex-direction: row;
         align-items: center;
@@ -385,5 +430,35 @@ input[type="number"]:focus, select:focus {
     }
     .field-inputs {
         flex: 1;
+    }
+}
+
+/* Mobile-first: stack add-controls on very small screens */
+@media (max-width: 380px) {
+    .add-controls {
+        flex-direction: column;
+    }
+    .add-controls .btn-primary {
+        width: 100%;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .total-result-display {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .result-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .res-ratio {
+        align-self: flex-start;
     }
 }
