@@ -21,6 +21,14 @@ function trackEvent(eventName, params = {}) {
     }
 }
 
+// Global error boundary — reports unhandled JS errors to GA4
+window.addEventListener('error', (event) => {
+    trackEvent('js_error', { message: event.message, source: event.filename, line: event.lineno });
+});
+window.addEventListener('unhandledrejection', (event) => {
+    trackEvent('js_error', { message: String(event.reason) });
+});
+
 // State
 let activeFields = []; // { name: string, isRequired: boolean, hours: number, mins: number }
 
@@ -56,7 +64,9 @@ function init() {
 
     if (sharedState) {
         try {
-            activeFields = JSON.parse(atob(decodeURIComponent(sharedState)));
+            const parsed = JSON.parse(atob(decodeURIComponent(sharedState)));
+            if (!isValidStateShape(parsed)) throw new Error('Invalid state shape');
+            activeFields = parsed;
             window.history.replaceState({}, document.title, window.location.pathname);
             renderActiveFields();
             isSharedLoad = true;
@@ -93,8 +103,10 @@ function init() {
     }
     
     setTimeout(() => {
-        trackEvent('time_spent', { seconds: 60 });
-    }, 60000);
+        [30, 60, 120, 300].forEach(seconds => {
+            setTimeout(() => trackEvent('time_spent', { seconds }), (seconds - 30) * 1000);
+        });
+    }, 30000);
     
     document.getElementById('versionTag').textContent = VERSION;
 }
@@ -148,6 +160,11 @@ function onCalculateClick() {
     calculateAndRenderResults();
 }
 
+function isValidStateShape(parsed) {
+    return Array.isArray(parsed) &&
+        parsed.every(f => typeof f.name === 'string' && typeof f.hours === 'number' && typeof f.mins === 'number');
+}
+
 function onResetClick(e) {
     if (e) e.preventDefault();
     trackEvent('reset');
@@ -159,7 +176,12 @@ function onResetClick(e) {
     showPlaceholderResults("Calculator reset. Enter time and click Calculate.");
 }
 
+let isSharing = false;
 function onShareClick() {
+    if (isSharing) return;
+    isSharing = true;
+    setTimeout(() => isSharing = false, 3000);
+
     const stateStr = encodeURIComponent(btoa(JSON.stringify(activeFields)));
     const url = window.location.origin + window.location.pathname + '?state=' + stateStr;
     
@@ -174,20 +196,23 @@ function onShareClick() {
         });
     }).catch(err => {
         console.error("Failed to copy share link", err);
-        alert("Failed to copy to clipboard. View console for details.");
+        trackEvent('error', { type: 'clipboard_failure', action: 'share' });
+        window.prompt('Copy this link manually:', url);
     });
 }
 
 function onCopyTotalClick() {
     const textToCopy = totalDisplay.textContent;
-    if (textToCopy.includes("--")) return; // Don't copy placeholder
+    if (textToCopy.includes("--")) return;
     navigator.clipboard.writeText(textToCopy).then(() => {
-        const originalText = copyTotalBtn.textContent;
-        copyTotalBtn.textContent = '✅';
-        setTimeout(() => copyTotalBtn.textContent = originalText, 1500);
+        const svg = copyTotalBtn.innerHTML;
+        copyTotalBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        setTimeout(() => copyTotalBtn.innerHTML = svg, 1500);
         trackEvent('copy_output', { total_value: textToCopy });
     }).catch(err => {
         console.error("Failed to copy", err);
+        trackEvent('error', { type: 'clipboard_failure', action: 'copy_total' });
+        window.prompt('Copy this value manually:', textToCopy);
     });
 }
 
