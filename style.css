@@ -110,6 +110,17 @@ header p {
     font-size: 0.95rem;
 }
 
+.version-tag {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: -0.3rem;
+    margin-bottom: 0.6rem;
+    opacity: 0.8;
+}
+
 .card {
     background: var(--card-bg);
     backdrop-filter: blur(12px);
@@ -377,6 +388,20 @@ input[type="number"]:focus, select:focus {
     margin-top: 2rem;
 }
 
+.report-issue-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+}
+
+.report-issue-link:hover {
+    color: var(--accent-on-light);
+}
+
 .disclaimer {
     display: block;
     margin-top: 0.5rem;
@@ -477,4 +502,107 @@ input[type="number"]:focus, select:focus {
     .res-ratio {
         align-self: flex-start;
     }
+}
+
+/* ====================================================
+   Privacy Consent Banner
+   ==================================================== */
+.privacy-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+    z-index: 500;
+    padding: 0.875rem 1.25rem;
+    transform: translateY(110%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.privacy-banner.visible {
+    transform: translateY(0);
+}
+
+.privacy-banner-body {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.privacy-banner-text {
+    flex: 1;
+    min-width: 180px;
+}
+
+.privacy-banner-text strong {
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.privacy-banner-text p {
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.privacy-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.privacy-details-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0;
+    transition: color 0.2s;
+    min-height: 44px;
+}
+
+.privacy-details-btn:hover {
+    color: var(--text-main);
+}
+
+.privacy-accept-btn {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.875rem;
+    min-height: 38px;
+    white-space: nowrap;
+}
+
+.privacy-details-section {
+    max-width: 700px;
+    margin: 0.75rem auto 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.privacy-details-section a {
+    color: var(--text-muted);
+    text-decoration: underline;
+}
+
+.privacy-details-section a:hover {
+    color: var(--text-main);
 }

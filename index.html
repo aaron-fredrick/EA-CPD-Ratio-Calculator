@@ -90,7 +90,8 @@
     </div>
     <main class="container">
         <header>
-            <h1>EA CPD Ratio Calculator <small id="versionTag" style="font-size: 0.8rem; opacity: 0.7;"></small></h1>
+            <h1>EA CPD Ratio Calculator</h1>
+            <span id="versionTag" class="version-tag"></span>
             <p>Enter the <b>actual time</b> you spent on each field to get the correct EA portal options.</p>
         </header>
 
@@ -144,6 +145,12 @@
         <section class="summary-section">
             <p>Note: Calculations match EA's internal 15-minute rounding and division logic.</p>
             <span class="disclaimer">⚖️ DISCLAIMER: This tool is NOT affiliated with Engineers Australia (EA). Final entry should be verified against the official EA portal.</span>
+            <a
+                href="https://github.com/aaron-fredrick/EA-CPD-Ratio-Calculator/issues/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="report-issue-link"
+            >🐛 Report an issue</a>
         </section>
     </main>
 
@@ -176,5 +183,24 @@
     </template>
 
     <script src="app.js"></script>
+
+    <!-- Privacy / Analytics Consent Banner -->
+    <div id="privacyBanner" class="privacy-banner" role="dialog" aria-labelledby="privacyBannerHeading" aria-hidden="true">
+        <div class="privacy-banner-body">
+            <div class="privacy-banner-text">
+                <strong id="privacyBannerHeading">🔒 Analytics Notice</strong>
+                <p>This tool uses <b>Google Analytics</b> and <b>Microsoft Clarity</b> to understand usage patterns. No personal data is collected or sold.</p>
+            </div>
+            <div class="privacy-banner-actions">
+                <button id="privacyDetailsBtn" class="privacy-details-btn">Details ›</button>
+                <button id="privacyAcceptBtn" class="btn-primary privacy-accept-btn">Got it</button>
+            </div>
+        </div>
+        <div id="privacyDetails" class="privacy-details-section" hidden>
+            <p><strong>Google Analytics 4</strong> — anonymised page views and feature usage (e.g. which fields are added, calculation frequency). <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy ↗</a></p>
+            <p><strong>Microsoft Clarity</strong> — session heatmaps and scroll depth for UX improvement. No keystrokes or sensitive inputs are recorded. <a href="https://clarity.microsoft.com/terms" target="_blank" rel="noopener noreferrer">Clarity Terms ↗</a></p>
+            <p>You can opt out at any time by enabling <em>Do Not Track</em> in your browser or installing an ad-blocker extension.</p>
+        </div>
+    </div>
 </body>
 </html>

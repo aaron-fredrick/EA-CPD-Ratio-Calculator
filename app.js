@@ -112,6 +112,8 @@ function init() {
     }, 30000);
     
     document.getElementById('versionTag').textContent = VERSION;
+
+    initPrivacyBanner();
 }
 
 function initTheme() {
@@ -172,7 +174,20 @@ function onResetClick(e) {
     if (e) e.preventDefault();
     trackEvent('reset');
     hasStarted = false;
-    activeFields = [];
+
+    // Keep required fields (Risk Management, Business & Management) but zero their times.
+    // Re-add any that may have been missing from a corrupted state.
+    const preserved = activeFields
+        .filter(f => f.isRequired)
+        .map(f => ({ ...f, hours: 0, mins: 0 }));
+
+    COMMON_FIELDS.forEach(name => {
+        if (!preserved.some(f => f.name === name)) {
+            preserved.push({ name, isRequired: true, hours: 0, mins: 0 });
+        }
+    });
+
+    activeFields = preserved;
     saveState();
     renderActiveFields();
     populateDropdown();
@@ -412,6 +427,33 @@ function renderActiveFields() {
 }
 
 function onAddFieldClick() { if (availableFieldsDropdown.value) addFieldToState(availableFieldsDropdown.value, false); }
+
+function initPrivacyBanner() {
+    if (localStorage.getItem('cpd-privacy-accepted')) return;
+
+    const banner = document.getElementById('privacyBanner');
+    const acceptBtn = document.getElementById('privacyAcceptBtn');
+    const detailsBtn = document.getElementById('privacyDetailsBtn');
+    const details = document.getElementById('privacyDetails');
+
+    // Delay so the banner doesn't compete with initial content render
+    setTimeout(() => {
+        banner.classList.add('visible');
+        banner.removeAttribute('aria-hidden');
+    }, 1500);
+
+    acceptBtn.addEventListener('click', () => {
+        localStorage.setItem('cpd-privacy-accepted', '1');
+        banner.classList.remove('visible');
+        trackEvent('privacy_consent_accepted');
+    });
+
+    detailsBtn.addEventListener('click', () => {
+        const isOpen = !details.hidden;
+        details.hidden = isOpen;
+        detailsBtn.textContent = isOpen ? 'Details ›' : 'Details ‹';
+    });
+}
 
 // Script is placed at the end of <body>, so the DOM is fully available here.
 // Calling init() directly avoids waiting for the DOMContentLoaded event-loop
