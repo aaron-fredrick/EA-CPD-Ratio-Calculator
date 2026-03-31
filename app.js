@@ -451,7 +451,7 @@ function initPrivacyBanner() {
     detailsBtn.addEventListener('click', () => {
         const isOpen = !details.hidden;
         details.hidden = isOpen;
-        detailsBtn.textContent = isOpen ? 'Details ›' : 'Details ‹';
+        detailsBtn.textContent = isOpen ? 'Details ▲' : 'Details ▼';
     });
 }
 

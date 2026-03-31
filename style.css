@@ -593,6 +593,10 @@ input[type="number"]:focus, select:focus {
     font-size: 0.78rem;
     color: var(--text-muted);
     line-height: 1.65;
+}
+
+/* Prevent display: flex from overriding the [hidden] attribute */
+.privacy-details-section:not([hidden]) {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
