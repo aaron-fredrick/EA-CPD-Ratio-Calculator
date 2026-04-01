@@ -388,14 +388,24 @@ input[type="number"]:focus, select:focus {
     margin-top: 2rem;
 }
 
+.footer-links {
+    margin-top: 0.75rem;
+    text-align: center;
+}
+
 .report-issue-link {
     display: inline-block;
-    margin-top: 0.75rem;
     color: var(--text-muted);
     font-size: 0.8rem;
     text-decoration: underline;
     text-underline-offset: 2px;
     transition: color 0.2s;
+}
+
+.footer-dot {
+    margin: 0 0.5rem;
+    color: var(--text-muted);
+    opacity: 0.5;
 }
 
 .report-issue-link:hover {
