@@ -39,7 +39,11 @@ No login. No install. Works on any device.
 
 ## 🎥 Demo
 
-![App Demo](screenshots/demo.webp)
+### Light Mode Demo
+<video src="screenshots/desktop-light-vid.mp4" controls="controls" width="100%" muted="muted"></video>
+
+### Dark Mode Demo
+<video src="screenshots/desktop-dark-vid.mp4" controls="controls" width="100%" muted="muted"></video>
 
 ---
 
