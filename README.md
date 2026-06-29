@@ -3,10 +3,10 @@
 # EA CPD Ratio Calculator
 
 **Free, open-source tool for Engineers Australia CPD reporting.**  
-Skip the guesswork — enter your actual time spent and instantly get the correct ratio options to enter in the EA Portal.
+Skip the guesswork - enter your actual time spent and instantly get the correct ratio options to enter in the EA Portal.
 
 [![Live Tool](https://img.shields.io/badge/Live%20Tool-Open%20Calculator-E31837?style=for-the-badge)](https://aaron-fredrick.github.io/EA-CPD-Ratio-Calculator/)
-[![GitHub Pages](https://img.shields.io/badge/Hosted%20on-GitHub%20Pages-222?style=for-the-badge&logo=github)](https://aaron-fredrick.github.io/EA-CPD-Ratio-Calculator/)
+[![GitHub Pages](https://img.shields.io/badge/Hosted%20on-GitHub%20Pages-222?style=for-the-badge&logo=github)](https://aaron-fredrick.github.io/EA-CPD-Ratio-Calculator/?utm_source=github)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 </div>
@@ -15,7 +15,7 @@ Skip the guesswork — enter your actual time spent and instantly get the correc
 
 ## 🚀 Try It Now
 
-**[➡ Open the EA CPD Ratio Calculator](https://aaron-fredrick.github.io/EA-CPD-Ratio-Calculator/)**
+**[➡ Open the EA CPD Ratio Calculator](https://aaron-fredrick.github.io/EA-CPD-Ratio-Calculator/?utm_source=github)**
 
 No login. No install. Works on any device.
 
@@ -23,16 +23,16 @@ No login. No install. Works on any device.
 
 ## 📸 Screenshots
 
-### Desktop — Light Mode
+### Desktop - Light Mode
 ![Desktop Light Mode](screenshots/desktop-light.png)
 
-### Desktop — Dark Mode
+### Desktop - Dark Mode
 ![Desktop Dark Mode](screenshots/desktop-dark.png)
 
-### Mobile — Light Mode
+### Mobile - Light Mode
 <img src="screenshots/mobile-light.png" width="390" alt="Mobile Light Mode">
 
-### Mobile — Dark Mode
+### Mobile - Dark Mode
 <img src="screenshots/mobile-dark.png" width="390" alt="Mobile Dark Mode">
 
 ---
@@ -49,7 +49,7 @@ No login. No install. Works on any device.
 
 ## ❓ How It Works
 
-Engineers Australia's CPD portal only accepts fixed ratio options: **N/A (0%)**, **Some (25%)**, **Half (50%)**, **Most (75%)**, or **All (100%)** — for each engineering field. These ratios are applied to a rounded total time, making it non-trivial to match what you actually spent.
+Engineers Australia's CPD portal only accepts fixed ratio options: **N/A (0%)**, **Some (25%)**, **Half (50%)**, **Most (75%)**, or **All (100%)** - for each engineering field. These ratios are applied to a rounded total time, making it non-trivial to match what you actually spent.
 
 This tool:
 
@@ -78,10 +78,10 @@ The algorithm mirrors EA's internal rounding logic:
 
 ## 🛠 Tech Stack
 
-- **Pure HTML / CSS / JavaScript** — zero dependencies, zero build step
-- **Google Analytics 4** — anonymised usage insights
-- **Microsoft Clarity** — heatmaps and scroll depth for UX improvement
-- **GitHub Pages** — free, zero-config hosting
+- **Pure HTML / CSS / JavaScript** - zero dependencies, zero build step
+- **Google Analytics 4** - anonymised usage insights
+- **Microsoft Clarity** - heatmaps and scroll depth for UX improvement
+- **GitHub Pages** - free, zero-config hosting
 
 ---
 
